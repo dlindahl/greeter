@@ -1,0 +1,3 @@
+[submodule "vendor/assets/javascripts/ccv"]
+	path = vendor/assets/javascripts/ccv
+	url = git://github.com/liuliu/ccv.git

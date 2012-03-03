@@ -1,0 +1,20 @@
+{
+  "name" : "greeter",
+  "description" : "[TODO]",
+  "version" : "0.0.1",
+  "homepage" : "https://github.com/dlindahl/greeter",
+  "author" : "Derek Lindahl",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/dlindahl/greeter"
+  },
+  "dependencies" : {
+    "coffee-script" : "1.2.0",
+    "connect" : "2.0.1",
+    "connect-assets" : "2.1.8"
+  },
+  "engines": {
+    "node": "0.6 || 0.7 || 0.8",
+    "npm": "1"
+  }
+}
