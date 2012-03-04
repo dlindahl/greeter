@@ -2,10 +2,26 @@
 <html>
 <body>
   <div id="foo">
-    <video id="media_src" style="width: 400px;"></video>
-    <canvas id="buffer" style="width: 400px;" width="352" height="288"></canvas>
+    <video id="media_src" style="width: 400px; float: left;"></video>
+    <canvas id="buffer" style="display: none;" width="352" height="288"></canvas>
   </div>
 
+  <dl style="float: left; margin-left: 20px;">
+    <dt>Approximate Age:</dt>
+    <dd id="age"></dd>
+
+    <dt>Gender:</dt>
+    <dd id="gender"></dd>
+
+    <dt>Mood:</dt>
+    <dd id="mood"></dd>
+
+    <dt>Smiling:</dt>
+    <dd id="smiling"></dd>
+  </dl>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="/socket.io.min.js"></script>
   <script src="/javascripts/ccv/js/ccv.js"></script>
   <script src="/javascripts/ccv/js/face.js"></script>
   <script src="/javascripts/detect.js"></script>

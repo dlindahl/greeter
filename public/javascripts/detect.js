@@ -1,9 +1,27 @@
-var ccv = window.ccv,
+var socket = io.connect('http://localhost:3001'),
+    ccv = window.ccv,
     media = document.getElementById('media_src'),
     canvas = document.getElementById('buffer'),
-    context = canvas.getContext('2d');
+    context = canvas.getContext('2d'),
+    output = document.createElement('canvas');
 
+socket.on('connect', function() {
+  console.log('connected!')
+});
 
+socket.on('recognized', function(attributes) {
+  console.log('[recognized]', attributes);
+
+  $('#age').html( attributes.age_est.value );
+  $('#gender').html( attributes.gender.value );
+  $('#mood').html( attributes.mood.value );
+  $('#smiling').html( attributes.smiling.value );
+});
+
+socket.on('unrecognized', function(err) {
+  console.log('[unrecognized]', err);
+  dumpFrame();
+});
 
 function getUserMedia( callback ) {
   var getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia,
@@ -20,27 +38,10 @@ function getUserMedia( callback ) {
   }
 }
 
-var run = true;
-setTimeout( function() { run = false; }, 10000 );
 
 function dumpFrame() {
-  if(!run) return;
-
   context.drawImage( media, 0, 0, canvas.width, canvas.height );
   detectFaces();
-}
-
-function outlineFaces(comp) {
-  context.lineWidth = 3;
-  context.strokeStyle = "#f00";
-
-  // draw detected area
-  for (var i = 0; i < comp.length; i++) {
-    console.log( comp[i].confidence, comp[i].width, comp[i].height )
-    context.strokeRect(comp[i].x, comp[i].y, comp[i].width, comp[i].height);
-  }
-
-  setTimeout( dumpFrame, 100 );
 }
 
 function detectFaces() {
@@ -52,10 +53,24 @@ function detectFaces() {
   });
 
   if( comp.length > 0 ) {
-    outlineFaces(comp);
+    capture(comp[0])
   } else {
     dumpFrame();
   }
+}
+
+function capture(location) {
+  var ctx = output.getContext('2d'),
+      offset = 20;
+
+  output.width = location.width + offset * 2;
+  output.height = location.height + offset * 2;
+
+  ctx.drawImage( canvas, -(location.x - offset), -(location.y - offset) );
+
+  var imgData = output.toDataURL();
+
+  socket.emit( 'capture', { captured: imgData });
 }
 
 getUserMedia(function( stream ) {
@@ -67,12 +82,5 @@ getUserMedia(function( stream ) {
 
     dumpFrame()
   }.bind(this), false);
-
-  // On timeupdate events, draw the video frame to the canvas
-  // this.media.addEventListener( "timeupdate", function(e) {
-  //   // console.log('timeupdate!', e.timeStamp)
-  // //   this.draw();
-  //   // dumpFrame();
-  // }.bind(this), false);
 
 });
