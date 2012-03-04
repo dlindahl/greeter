@@ -21,28 +21,14 @@ io.sockets.on('connection', function(client) {
   });
 
   client.on('capture', function(data) {
-
     var file,
-        buffer,
-        filepath = "face.png";
+        buffer;
 
-        buffer = new Buffer( data.captured.replace(/^data:image\/\w+;base64,/, ""), "base64" );
-        // TODO: Don't save to disk
-        file = fs.openSync( filepath, "w+" );
-
-        // Output regenerated, compressed code
-        fs.write( file, buffer, 0, buffer.length, 0, function( err, data ) {
-          if ( err == null ) {
-            console.log( "Saved: " + filepath );
-          } else {
-            console.log(err)
-          }
-        });
-
+    buffer = new Buffer( data.captured.replace(/^data:image\/\w+;base64,/, ""), "base64" );
 
     var options = {
       multipart : true,
-      timeout : 5000
+      timeout   : 5000
     }
 
     var data = {
@@ -50,20 +36,40 @@ io.sockets.on('connection', function(client) {
       api_secret  : process.env.FACE_API_SECRET,
       attributes  : 'all',
       filename    : {
-        content_type  : 'image/png',
-        file          : filepath
+        content_type  : 'image/png', // TODO: Auto-detect MIME-type?
+        buffer        : buffer,
+        filename      : 'face.png'
       }
     }
 
     Needle.post('http://api.face.com/faces/detect.json', data, options, function(err, req, response) {
       if(err) {
         io.sockets.emit('unrecognized', err);
-      } else if(!response.photos || (response.photos && response.photos.length === 0)) {
-        io.sockets.emit('unrecognized', 'No faces');
       } else {
-        io.sockets.emit('recognized', response.photos[0].tags[0].attributes);
+        var photo,
+            tag,
+            attributes,
+            recognizable;
+
+        if( response.photos && response.photos.length > 0 ) {
+          photo = response.photos[0];
+          if( photo.tags && photo.tags.length > 0 ) {
+            tag = photo.tags[0];
+            recognizable = tag.recognizable;
+            attributes = tag.attributes;
+          }
+        }
+
+        if( recognizable ) {
+          io.sockets.emit('recognized', photo, attributes);
+        } else if( photo && tag ) {
+          io.sockets.emit('detected', photo, attributes);
+        } else {
+          io.sockets.emit('unrecognized', 'No faces', photo);
+        }
       }
-      console.log('done.', response)
+
+      console.log('done.', photo);
     });
 
   })

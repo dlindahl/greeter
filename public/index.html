@@ -2,8 +2,8 @@
 <html>
 <body>
   <div id="foo">
-    <video id="media_src" style="width: 400px; float: left;"></video>
-    <canvas id="buffer" style="display: none;" width="352" height="288"></canvas>
+    <video id="media_src" style="width: 500px; float: left;"></video>
+    <canvas id="buffer" style="display: none;" width="500" height="409"></canvas>
   </div>
 
   <dl style="float: left; margin-left: 20px;">
@@ -18,7 +18,15 @@
 
     <dt>Smiling:</dt>
     <dd id="smiling"></dd>
+
+    <dt>Face</dt>
+    <dd><img id="face"/></dd>
+
+    <dt>Recognizable?</dt>
+    <dd id="can_recognize"></dd>
   </dl>
+
+  <button id="detect">Detect</button>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script src="/socket.io.min.js"></script>

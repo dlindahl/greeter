@@ -9,18 +9,43 @@ socket.on('connect', function() {
   console.log('connected!')
 });
 
-socket.on('recognized', function(attributes) {
-  console.log('[recognized]', attributes);
+function setHTML(photo, attributes) {
+  if( attributes.age_est ) {
+    $('#age').html( attributes.age_est.value );
+  }
+  if( attributes.gender ) {
+    $('#gender').html( attributes.gender.value );
+  }
+  if( attributes.mood ) {
+    $('#mood').html( attributes.mood.value );
+  }
+  if( attributes.smiling ) {
+    $('#smiling').html( attributes.smiling.value );
+  }
 
-  $('#age').html( attributes.age_est.value );
-  $('#gender').html( attributes.gender.value );
-  $('#mood').html( attributes.mood.value );
-  $('#smiling').html( attributes.smiling.value );
+  $('#face').attr('src', photo.url);
+}
+
+socket.on('detected', function(photo, attributes) {
+  console.log('[detected]', attributes);
+
+  $('#can_recognize').html('No');
+  setHTML( photo, attributes );
 });
 
-socket.on('unrecognized', function(err) {
-  console.log('[unrecognized]', err);
-  dumpFrame();
+socket.on('recognized', function(photo, attributes) {
+  console.log('[recognized]', attributes);
+
+  $('#can_recognize').html('Yes');
+  setHTML( photo, attributes );
+});
+
+socket.on('unrecognized', function(err, photo) {
+  console.log('[unrecognized]', err, photo);
+  if( photo ) {
+    $('#face').attr('src', photo.url);
+  }
+  setTimeout( dumpFrame, 5000);
 });
 
 function getUserMedia( callback ) {
@@ -43,6 +68,7 @@ function dumpFrame() {
   context.drawImage( media, 0, 0, canvas.width, canvas.height );
   detectFaces();
 }
+$('#detect').click(dumpFrame);
 
 function detectFaces() {
   var comp = ccv.detect_objects({
@@ -55,6 +81,7 @@ function detectFaces() {
   if( comp.length > 0 ) {
     capture(comp[0])
   } else {
+    console.log('no one detected');
     dumpFrame();
   }
 }
@@ -64,7 +91,7 @@ function capture(location) {
       offset = 20;
 
   output.width = location.width + offset * 2;
-  output.height = location.height + offset * 2;
+  output.height = location.height + offset * 4;
 
   ctx.drawImage( canvas, -(location.x - offset), -(location.y - offset) );
 
