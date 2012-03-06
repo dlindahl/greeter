@@ -12,7 +12,10 @@
     "coffee-script" : "1.2.0",
     "connect" : "2.0.1",
     "socket.io" : "0.9.1-1",
-    "needle" : "git://github.com/dlindahl/needle.git#0ed8651677"
+    "needle" : "git://github.com/dlindahl/needle.git#0ed8651677",
+
+    "first" : "0.0.1",
+    "Deferred" : "0.1.1"
   },
   "engines": {
     "node": "0.6 || 0.7 || 0.8",

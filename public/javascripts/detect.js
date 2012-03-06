@@ -5,45 +5,56 @@ var socket = io.connect('http://localhost:3001'),
     context = canvas.getContext('2d'),
     output = document.createElement('canvas');
 
+var run = null;
+
 socket.on('connect', function() {
   console.log('connected!')
+  if( run === false ) {
+    dumpFrame();
+  }
 });
 
-function setHTML(photo, attributes) {
-  if( attributes.age_est ) {
-    $('#age').html( attributes.age_est.value );
+socket.on('disconnect', function() {
+  console.log('disconnected!')
+  run = false;
+});
+
+
+function setHTML(face) {
+  if( face.attributes.age_est ) {
+    $('#age').html( face.attributes.age_est.value );
   }
-  if( attributes.gender ) {
-    $('#gender').html( attributes.gender.value );
+  if( face.attributes.gender ) {
+    $('#gender').html( face.attributes.gender.value );
   }
-  if( attributes.mood ) {
-    $('#mood').html( attributes.mood.value );
+  if( face.attributes.mood ) {
+    $('#mood').html( face.attributes.mood.value );
   }
-  if( attributes.smiling ) {
-    $('#smiling').html( attributes.smiling.value );
+  if( face.attributes.smiling ) {
+    $('#smiling').html( face.attributes.smiling.value );
   }
 
-  $('#face').attr('src', photo.url);
+  $('#face').attr('src', face.photo.url);
 }
 
-socket.on('detected', function(photo, attributes) {
-  console.log('[detected]', attributes);
+socket.on('detected', function(faces) {
+  console.log('[detected]', faces);
 
   $('#can_recognize').html('No');
-  setHTML( photo, attributes );
+  setHTML( faces[0] );
 });
 
-socket.on('recognized', function(photo, attributes) {
-  console.log('[recognized]', attributes);
+socket.on('recognized', function(faces) {
+  console.log('[recognized]', faces);
 
   $('#can_recognize').html('Yes');
-  setHTML( photo, attributes );
+  setHTML( faces[0] );
 });
 
-socket.on('unrecognized', function(err, photo) {
-  console.log('[unrecognized]', err, photo);
-  if( photo ) {
-    $('#face').attr('src', photo.url);
+socket.on('unrecognized', function(err, analysis) {
+  console.log('[unrecognized]', err, analysis);
+  if( analysis ) {
+    $('#face').attr('src', analysis.photo.url);
   }
   setTimeout( dumpFrame, 5000);
 });
@@ -63,10 +74,11 @@ function getUserMedia( callback ) {
   }
 }
 
-
 function dumpFrame() {
-  context.drawImage( media, 0, 0, canvas.width, canvas.height );
-  detectFaces();
+  if(run) {
+    context.drawImage( media, 0, 0, canvas.width, canvas.height );
+    detectFaces();
+  }
 }
 $('#detect').click(dumpFrame);
 
@@ -82,7 +94,7 @@ function detectFaces() {
     capture(comp[0])
   } else {
     console.log('no one detected');
-    dumpFrame();
+    setTimeout( dumpFrame, 1500 );
   }
 }
 
@@ -107,7 +119,9 @@ getUserMedia(function( stream ) {
   this.media.addEventListener( "loadedmetadata", function() {
     this.media.play();
 
-    dumpFrame()
+    // dumpFrame()
+    run = true;
+    setTimeout(dumpFrame, 1000)
   }.bind(this), false);
 
 });
