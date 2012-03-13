@@ -2,8 +2,7 @@
 <html>
 <body>
   <div id="foo">
-    <video id="media_src" style="width: 500px; float: left;"></video>
-    <canvas id="buffer" style="display: none;" width="500" height="409"></canvas>
+    <video id="media_src" style="float: left;"></video>
   </div>
 
   <dl style="float: left; margin-left: 20px;">
@@ -32,5 +31,7 @@
   <script src="/socket.io.min.js"></script>
   <script src="/javascripts/ccv/js/ccv.js"></script>
   <script src="/javascripts/ccv/js/face.js"></script>
-  <script src="/javascripts/detect.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.2.0/coffee-script.min.js"></script>
+  <script src="/javascripts/ventral_stream.coffee" type="text/coffeescript"></script>
+  <script src="/javascripts/detect.coffee" type="text/coffeescript"></script>
 </body>
